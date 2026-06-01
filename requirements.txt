@@ -1,1 +1,1 @@
-pypdf
+pypdf==6.12.2
