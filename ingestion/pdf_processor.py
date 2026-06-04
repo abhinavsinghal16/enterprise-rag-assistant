@@ -6,11 +6,13 @@ import re
 def normalize_text(text: str) -> str:
     text = text.strip()
 
+    text = text.replace("\u2009", " ")
+    text = text.replace("\xa0", " ")
     text = re.sub(
-        r"\n\s*\n\s*\n+",
-        "\n\n",
-        text
-    )
+            r"\n\s*\n",
+            "\n\n",
+            text
+           )
 
     return text
 
@@ -19,7 +21,7 @@ def extract_pages(pdf_path: str) -> List[Dict]:
     Returns:
     [
         {
-            "page": 1,
+            "page_number": 1,
             "text": "..."
         }
     ]
@@ -35,7 +37,7 @@ def extract_pages(pdf_path: str) -> List[Dict]:
 
         pages.append(
             {
-                "page": page_number,
+                "page_number": page_number,
                 "text": text
             }
         )
