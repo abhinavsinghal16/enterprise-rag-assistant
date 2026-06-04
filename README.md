@@ -40,7 +40,7 @@ The project covers the complete retrieval pipeline:
 
 ### Retrieval
 
-* [ ] Embedding generation
+* [x] Embedding generation
 * [ ] Embedding persistence
 * [ ] FAISS vector storage
 * [ ] Semantic retrieval
@@ -135,6 +135,24 @@ Validation:
 * Verified section-aware chunk generation.
 * Verified page metadata tracking.
 * Identified PDF extraction artifacts and deferred advanced cleanup to a future iteration.
+
+### Milestone 4: Embedding Generation
+
+Completed
+
+Implemented:
+
+* EmbeddingGenerator abstraction
+* SentenceTransformerEmbeddingGenerator implementation
+* Sentence Transformers integration
+* Embedding normalization
+* Batch embedding generation
+
+Validation:
+
+* Generated embeddings for 156 chunks
+* Verified 384-dimensional embeddings
+* Verified one embedding per chunk
 
 ---
 
