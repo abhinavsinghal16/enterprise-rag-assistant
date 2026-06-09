@@ -7,6 +7,7 @@ from models.document import Document
 from chunking.chunker import create_chunks
 from embeddings.sentence_transformer_embedding_generator import SentenceTransformerEmbeddingGenerator
 from storage.json_storage import JsonStorage
+from vector_store.faiss_vector_store import FaissVectorStore
 
 def main():
 
@@ -93,13 +94,25 @@ def main():
     # Persist chunk-to-embedding mappings
     storage.save_embeddings(embedding_records)
 
-    print(
-        f"Pages extracted: {len(pages)}"
+    storage.save_embeddings(embedding_records)
+
+    # Build a searchable vector index from persisted embeddings
+    vector_store = FaissVectorStore()
+
+    # Load embeddings and create a FAISS index
+    index = vector_store.build_index_from_file("data/embeddings.json")
+
+    # Persist the FAISS index for future retrieval operations
+    vector_store.save_index(
+        index,
+        "data/faiss.index"
     )
 
-    print(
-        f"Chunks created: {len(chunks)}"
-    )
+    print(f"Pages extracted: {len(pages)}")
+    print(f"Chunks created: {len(chunks)}")
+    print(f"Embeddings generated: {len(embeddings)}")
+    print(f"Embeddings indexed: {index.ntotal}")
+    print(f"Embedding dimension: {index.d}")
 
 if __name__ == "__main__":
     main()
