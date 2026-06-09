@@ -1,10 +1,12 @@
 import argparse
 import uuid
+from pathlib import Path
 
 from ingestion.pdf_processor import extract_pages
+from models.document import Document
 from chunking.chunker import create_chunks
 from embeddings.sentence_transformer_embedding_generator import SentenceTransformerEmbeddingGenerator
-
+from storage.json_storage import JsonStorage
 
 def main():
 
@@ -17,23 +19,25 @@ def main():
 
     args = parser.parse_args()
 
-    # Extract document pages
-    pages = extract_pages(
-        args.pdf_file
+    # Create document metadata
+    document = Document(
+        id=str(uuid.uuid4()),
+        name=args.pdf_file,
+        document_type=Path(args.pdf_file).suffix.lstrip(".")
     )
 
-    document_id = str(
-        uuid.uuid4()
-    )
+    # Extract pages from the input document
+    pages = extract_pages(document.name)
 
+    
     # Create retrieval chunks from the extracted pages
     chunks = create_chunks(
         pages=pages,
-        document_id=document_id,
-        document_name=args.pdf_file
+        document_id=document.id,
+        document_name=document.name
     )
 
-    # Extract chunk text for embedding generation
+    # Extract text from chunks for embedding generation
     chunk_texts = [
         chunk.text
         for chunk in chunks
@@ -41,10 +45,53 @@ def main():
 
     generator = SentenceTransformerEmbeddingGenerator()
 
-    # Generate embeddings for all chunks
+    # Generate vector embeddings for each chunk
     embeddings = generator.generate_embeddings(
         chunk_texts
     )
+
+    storage = JsonStorage()
+    document_records = [
+        {
+            "id": document.id,
+            "name": document.name,
+            "type": document.document_type
+        }
+    ]
+
+    # Persist document metadata
+    storage.save_documents(document_records)
+
+    chunk_records = [
+        {
+            "chunk_id": chunk.id,
+            "document_id": chunk.document_id,
+            "text": chunk.text,
+            "metadata": {
+                "document_name": chunk.metadata.document_name,
+                "page_number": chunk.metadata.page_number,
+                "section": chunk.metadata.section
+            }
+        }
+        for chunk in chunks
+    ]
+
+    # Persist chunk data and metadata
+    storage.save_chunks(chunk_records)
+
+    embedding_records = [
+        {
+            "chunk_id": chunk.id,
+            "embedding": embedding
+        }
+        for chunk, embedding in zip(
+            chunks,
+            embeddings
+        )
+    ]
+
+    # Persist chunk-to-embedding mappings
+    storage.save_embeddings(embedding_records)
 
     print(
         f"Pages extracted: {len(pages)}"

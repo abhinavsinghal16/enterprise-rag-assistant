@@ -41,7 +41,7 @@ The project covers the complete retrieval pipeline:
 ### Retrieval
 
 * [x] Embedding generation
-* [ ] Embedding persistence
+* [x] Embedding persistence
 * [ ] FAISS vector storage
 * [ ] Semantic retrieval
 * [ ] Retrieval result model
