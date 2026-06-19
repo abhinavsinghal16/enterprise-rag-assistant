@@ -52,3 +52,12 @@ class FaissVectorStore:
             index,
             index_file
         )
+
+    def load_index(
+        self,
+        index_file: str
+    ):
+
+        return faiss.read_index(
+            index_file
+        )

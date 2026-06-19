@@ -1,12 +1,12 @@
 # Enterprise RAG Assistant
 
-An end-to-end Retrieval-Augmented Generation (RAG) system being built from scratch to understand the architecture, design tradeoffs, and implementation details behind production AI assistants.
+An end-to-end Retrieval-Augmented Generation (RAG) system built from scratch to explore the architectural decisions, tradeoffs, and implementation details behind production AI assistants and enterprise knowledge systems.
 
 The objective is not simply to use existing frameworks, but to gain a deep understanding of how enterprise-grade AI applications are built, from document ingestion and retrieval to orchestration and answer generation.
 
 ## Planned Architecture
 
-The project covers the complete retrieval pipeline:
+The project covers the complete RAG pipeline:
 
 * Document ingestion
 * PDF processing
@@ -15,7 +15,7 @@ The project covers the complete retrieval pipeline:
 * Vector search with FAISS
 * Reranking
 * Prompt construction
-* LLM orchestration
+* LLM integration
 * Answer generation
 
 ---
@@ -43,9 +43,9 @@ The project covers the complete retrieval pipeline:
 * [x] Embedding generation
 * [x] Embedding persistence
 * [x] FAISS vector storage
-* [ ] Semantic retrieval
-* [ ] Retrieval result model
-* [ ] Reranking
+* [x] Semantic retrieval
+* [x] Retrieval result model
+* [x] Reranking
 
 ### Generation
 
@@ -64,13 +64,13 @@ The project covers the complete retrieval pipeline:
 
 ## Current Focus
 
-Building the retrieval layer:
+Building the generation layer:
 
-1. Generate embeddings for document chunks
-2. Persist embeddings and chunk metadata
-3. Implement FAISS vector storage
-4. Implement semantic retrieval
-5. Add reranking
+1. Prompt construction
+2. Context assembly
+3. LLM integration
+4. Answer generation
+5. Response evaluation
 
 ---
 
@@ -154,6 +154,47 @@ Validation:
 * Verified 384-dimensional embeddings
 * Verified one embedding per chunk
 
+Technology Choices:
+
+* all-MiniLM-L6-v2 for embedding generation
+
+### Milestone 5: Retrieval
+
+Completed
+
+Implemented:
+
+* FAISS vector storage
+* Semantic retrieval
+* Query embedding generation
+* RetrievalResult abstraction
+* Cross-encoder reranking
+
+Validation:
+
+* Verified retrieval against a 40-page employee handbook corpus
+* Confirmed semantic retrieval returns contextually relevant chunks for natural-language queries
+* Evaluated reranked results against baseline FAISS retrieval
+* Measured retrieval latency and end-to-end retrieval performance
+
+Technology Choices:
+
+* FAISS for vector similarity search
+* ms-marco-MiniLM-L-6-v2 cross-encoder for reranking
+
+Design Decisions:
+
+* FAISS selected for local vector search due to simplicity and performance.
+* Semantic retrieval and reranking were implemented as independent components to maintain separation of concerns.
+* Retrieval returns candidate chunks while reranking is responsible only for relevance ordering.
+* RetrievalResult provides a stable contract between retrieval and downstream generation components.
+
+Observations:
+
+* Retrieval quality is highly dependent on query specificity.
+* Reranking improves ordering for some queries but does not universally improve results.
+* Evaluation demonstrated the importance of measuring retrieval quality rather than assuming reranking improves relevance.
+
 ---
 
 ## Design Decisions
@@ -226,4 +267,8 @@ Examples include:
 * Retrieval-first optimization before introducing reranking and advanced evaluation
 
 Additional complexity is introduced only when it produces measurable improvements in retrieval quality.
+
+### Future Exploration
+
+Future iterations of the project will explore agentic workflows, allowing the system to perform iterative retrieval and reasoning rather than relying on a single retrieval-generation cycle.
 

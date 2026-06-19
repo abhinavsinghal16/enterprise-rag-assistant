@@ -8,6 +8,8 @@ from chunking.chunker import create_chunks
 from embeddings.sentence_transformer_embedding_generator import SentenceTransformerEmbeddingGenerator
 from storage.json_storage import JsonStorage
 from vector_store.faiss_vector_store import FaissVectorStore
+from retrieval.semantic_retriever import SemanticRetriever
+from retrieval.reranker import Reranker
 
 def main():
 
@@ -29,8 +31,7 @@ def main():
 
     # Extract pages from the input document
     pages = extract_pages(document.name)
-
-    
+   
     # Create retrieval chunks from the extracted pages
     chunks = create_chunks(
         pages=pages,
@@ -94,8 +95,6 @@ def main():
     # Persist chunk-to-embedding mappings
     storage.save_embeddings(embedding_records)
 
-    storage.save_embeddings(embedding_records)
-
     # Build a searchable vector index from persisted embeddings
     vector_store = FaissVectorStore()
 
@@ -108,11 +107,45 @@ def main():
         "data/faiss.index"
     )
 
+    retriever = SemanticRetriever(
+        generator,
+        vector_store,
+        storage
+    )
+    retrieval_result = retriever.search(
+        'how many vacation days do employees receive',
+        top_k=10
+    )
+
+    reranker = Reranker()
+
+    reranked_result = reranker.rerank(
+        query='paid time off',
+        retrieval_result=retrieval_result,
+        top_k=3
+    )
+
+    for chunk in reranked_result.chunks:
+        print(
+            chunk['metadata']['page_number']
+        )
+
+        print(
+            chunk['text'][:300]
+        )
+
+        print('-' * 80)
+
     print(f"Pages extracted: {len(pages)}")
     print(f"Chunks created: {len(chunks)}")
     print(f"Embeddings generated: {len(embeddings)}")
     print(f"Embeddings indexed: {index.ntotal}")
     print(f"Embedding dimension: {index.d}")
+
+    print(
+        f"Retrieval time: "
+        f"{retrieval_result.retrieval_time_ms:.2f} ms"
+    )
 
 if __name__ == "__main__":
     main()

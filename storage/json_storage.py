@@ -66,3 +66,21 @@ class JsonStorage:
                 file,
                 indent=4
             )
+
+    def load_chunks(self):
+        with open(
+            self.data_directory / "chunks.json",
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            return json.load(file)
+
+    def load_embeddings(self):
+        with open(
+            self.data_directory / "embeddings.json",
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            return json.load(file)
