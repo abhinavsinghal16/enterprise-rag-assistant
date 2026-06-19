@@ -10,8 +10,15 @@ from storage.json_storage import JsonStorage
 from vector_store.faiss_vector_store import FaissVectorStore
 from retrieval.semantic_retriever import SemanticRetriever
 from retrieval.reranker import Reranker
+from dotenv import load_dotenv
+
+from generation.openai_llm_client import OpenAILLMClient
+from generation.prompt_builder import PromptBuilder
+from generation.answer_generator import AnswerGenerator
 
 def main():
+
+    load_dotenv()
 
     parser = argparse.ArgumentParser()
 
@@ -112,29 +119,29 @@ def main():
         vector_store,
         storage
     )
-    retrieval_result = retriever.search(
-        'how many vacation days do employees receive',
-        top_k=10
-    )
+    query='how many vacation days do employees receive'
+    retrieval_result = retriever.search(query, top_k=10)
 
     reranker = Reranker()
 
     reranked_result = reranker.rerank(
-        query='paid time off',
+        query=query,
         retrieval_result=retrieval_result,
         top_k=3
     )
 
-    for chunk in reranked_result.chunks:
-        print(
-            chunk['metadata']['page_number']
-        )
+    prompt_builder = PromptBuilder()
 
-        print(
-            chunk['text'][:300]
-        )
+    llm_client = OpenAILLMClient()
 
-        print('-' * 80)
+    answer_generator = AnswerGenerator(
+        prompt_builder,
+        llm_client)
+
+    answer = answer_generator.generate_answer(
+        query=query,
+        retrieval_result=reranked_result)
+    
 
     print(f"Pages extracted: {len(pages)}")
     print(f"Chunks created: {len(chunks)}")
@@ -146,6 +153,10 @@ def main():
         f"Retrieval time: "
         f"{retrieval_result.retrieval_time_ms:.2f} ms"
     )
+
+    print("\nANSWER")
+    print("=" * 80)
+    print(answer)
 
 if __name__ == "__main__":
     main()

@@ -49,9 +49,9 @@ The project covers the complete RAG pipeline:
 
 ### Generation
 
-* [ ] Prompt construction
-* [ ] LLM integration
-* [ ] Answer generation
+* [x] Prompt construction
+* [x] LLM integration
+* [x] Answer generation
 
 ### Evaluation
 
@@ -64,13 +64,13 @@ The project covers the complete RAG pipeline:
 
 ## Current Focus
 
-Building the generation layer:
+Evaluating retrieval and answer quality:
 
-1. Prompt construction
-2. Context assembly
-3. LLM integration
-4. Answer generation
-5. Response evaluation
+1. Retrieval evaluation
+2. Reranking evaluation
+3. End-to-end response evaluation
+4. Source attribution
+5. Query optimization
 
 ---
 
@@ -195,6 +195,47 @@ Observations:
 * Reranking improves ordering for some queries but does not universally improve results.
 * Evaluation demonstrated the importance of measuring retrieval quality rather than assuming reranking improves relevance.
 
+### Milestone 6: Generation
+
+Completed
+
+Implemented:
+
+* Prompt model
+* PromptBuilder
+* LLMClient abstraction
+* OpenAILLMClient implementation
+* AnswerGenerator
+* End-to-end answer generation
+
+Validation:
+
+* Verified OpenAI API integration
+* Generated answers using retrieved and reranked document context
+* Confirmed responses were grounded in retrieved content
+* Verified end-to-end RAG flow from document ingestion to answer generation
+
+Technology Choices:
+
+* GPT-4.1 Mini for answer generation
+* OpenAI Python SDK
+* python-dotenv for environment configuration
+
+Design Decisions:
+
+* Prompt construction was separated from LLM integration to maintain provider independence.
+* LLMClient abstraction enables future support for alternative model providers without impacting the rest of the application.
+* AnswerGenerator acts as the orchestration layer between retrieval and generation.
+* System and user prompts are modeled explicitly to separate behavioral instructions from user queries.
+
+Observations:
+
+* Answer quality is highly dependent on retrieval quality.
+* Natural-language questions generally produced better retrieval and answer quality than keyword-only queries.
+* Prompt structure significantly influences response accuracy and grounding.
+* The generation layer can only reason over the context provided by retrieval.
+* End-to-end testing demonstrated the importance of treating retrieval and generation as separate concerns.
+
 ---
 
 ## Design Decisions
@@ -270,5 +311,5 @@ Additional complexity is introduced only when it produces measurable improvement
 
 ### Future Exploration
 
-Future iterations of the project will explore agentic workflows, allowing the system to perform iterative retrieval and reasoning rather than relying on a single retrieval-generation cycle.
+Future iterations of the project will explore agentic workflows, enabling the system to perform iterative retrieval, multi-step reasoning, and dynamic information gathering before generating a final response.
 
