@@ -56,7 +56,7 @@ The project covers the complete RAG pipeline:
 ### Evaluation
 
 * [x] Retrieval evaluation
-* [ ] Reranking evaluation
+* [x] Reranking evaluation
 * [ ] End-to-end response evaluation
 * [ ] Source attribution
 
@@ -65,11 +65,10 @@ The project covers the complete RAG pipeline:
 
 ## Current Focus
 
-Evaluating ranking and answer quality:
+Evaluating answer quality and attribution:
 
-1. Reranking evaluation
-2. End-to-end response evaluation
-3. Source attribution
+1. End-to-end response evaluation
+2. Source attribution
 
 ---
 
@@ -191,7 +190,8 @@ Design Decisions:
 Observations:
 
 * Retrieval quality is highly dependent on query specificity.
-* Reranking improves ordering for some queries but does not universally improve results.
+* Initial validation suggested reranking improved ordering for some queries.
+* Formal evaluation was deferred to a dedicated reranking evaluation milestone.
 * Evaluation demonstrated the importance of measuring retrieval quality rather than assuming reranking improves relevance.
 
 ### Milestone 6: Generation
@@ -265,6 +265,37 @@ Observations:
 * Evaluation framework exposed several issues in test data and normalization logic before any retrieval deficiencies were identified.
 * Accurate ground truth definition is critical for meaningful retrieval metrics.
 * Retrieval quality should be measured independently from generation quality.
+
+### Milestone 8: Reranking Evaluation
+
+Completed
+
+Implemented:
+
+* RerankingEvaluator
+* Automated reranking evaluation runner
+* Fact coverage validation across reranked chunks
+* End-to-end reranking quality reporting
+
+Validation:
+
+* Evaluated reranked results using the retrieval evaluation dataset.
+* Verified that all expected facts remained present after reranking.
+* Confirmed that reducing context from 10 retrieved chunks to 3 reranked chunks preserved answerability across all evaluation queries.
+* Achieved 10/10 reranking evaluation pass rate.
+
+Design Decisions:
+
+* Reranking quality is measured using fact coverage rather than individual chunk ranking.
+* Evaluation focuses on preserving answerability within the chunk set passed to generation.
+* Reranking is evaluated independently from answer generation to isolate retrieval pipeline quality.
+
+Observations:
+
+* The reranker successfully preserved all required information across the evaluation dataset.
+* Context reduction from 10 retrieved chunks to 3 reranked chunks did not result in information loss for tested queries.
+* Fact coverage proved to be an effective proxy for measuring answerability after context reduction.
+
 ---
 
 ## Design Decisions
