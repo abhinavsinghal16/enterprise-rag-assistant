@@ -55,22 +55,21 @@ The project covers the complete RAG pipeline:
 
 ### Evaluation
 
-* [ ] Retrieval evaluation
+* [x] Retrieval evaluation
 * [ ] Reranking evaluation
 * [ ] End-to-end response evaluation
+* [ ] Source attribution
 
 
 ---
 
 ## Current Focus
 
-Evaluating retrieval and answer quality:
+Evaluating ranking and answer quality:
 
-1. Retrieval evaluation
-2. Reranking evaluation
-3. End-to-end response evaluation
-4. Source attribution
-5. Query optimization
+1. Reranking evaluation
+2. End-to-end response evaluation
+3. Source attribution
 
 ---
 
@@ -174,7 +173,7 @@ Validation:
 
 * Verified retrieval against a 40-page employee handbook corpus
 * Confirmed semantic retrieval returns contextually relevant chunks for natural-language queries
-* Evaluated reranked results against baseline FAISS retrieval
+* Compared reranked results against baseline FAISS retrieval during validation
 * Measured retrieval latency and end-to-end retrieval performance
 
 Technology Choices:
@@ -236,6 +235,36 @@ Observations:
 * The generation layer can only reason over the context provided by retrieval.
 * End-to-end testing demonstrated the importance of treating retrieval and generation as separate concerns.
 
+### Milestone 7: Retrieval Evaluation
+
+Completed
+
+Implemented:
+
+* Retrieval test case framework
+* RetrievalEvaluator
+* Automated retrieval evaluation runner
+* Ground-truth validation workflow
+* Retrieval quality reporting
+
+Validation:
+
+* Created 10 retrieval evaluation test cases covering vacation policies, holidays, sick leave, overtime, jury duty, health insurance, and family leave.
+* Verified retrieval results against handbook ground truth.
+* Identified and corrected evaluation issues caused by whitespace normalization and document template artifacts.
+* Achieved 10/10 retrieval evaluation pass rate.
+
+Design Decisions:
+
+* Retrieval evaluation was separated from reranking and answer evaluation to isolate retrieval quality.
+* Ground truth is defined using expected facts rather than page numbers to focus evaluation on information retrieval rather than document structure.
+* Evaluation failures are investigated before modifying retrieval logic to distinguish retrieval issues from evaluation dataset issues.
+
+Observations:
+
+* Evaluation framework exposed several issues in test data and normalization logic before any retrieval deficiencies were identified.
+* Accurate ground truth definition is critical for meaningful retrieval metrics.
+* Retrieval quality should be measured independently from generation quality.
 ---
 
 ## Design Decisions
