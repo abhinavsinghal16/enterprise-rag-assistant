@@ -58,17 +58,14 @@ The project covers the complete RAG pipeline:
 * [x] Retrieval evaluation
 * [x] Reranking evaluation
 * [x] Deterministic End-to-end response evaluation
-* [ ] LLM-as-a-Judge End-to-end response evaluation
+* [x] LLM-as-a-Judge End-to-end response evaluation
 * [ ] Source attribution
 
 ---
 
 ## Current Focus
 
-Evaluating answer quality and attribution:
-
-1. LLM-as-a-Judge evaluation
-2. Source attribution
+1. Source attribution
 
 ---
 
@@ -460,6 +457,139 @@ Answer Quality
 * Answers that preserve meaning through paraphrasing are expected to pass LLM evaluation even when deterministic evaluation fails.
 * Answers that omit required facts are expected to fail both deterministic evaluation and LLM-based evaluation.
 
+### Milestone 10: LLM-as-a-Judge End-to-End Response Evaluation
+
+Completed
+
+Implemented:
+
+* LLMJudge
+* LLMJudgeEvaluator
+* Automated LLM-based response evaluation runner
+* Semantic answer validation workflow
+* End-to-end answer quality reporting
+
+Validation:
+
+* Evaluated generated answers using the retrieval evaluation dataset.
+* Compared LLM-based evaluation results against deterministic evaluation results.
+* Verified that the judge correctly identifies semantically equivalent answers.
+* Verified that the judge continues to identify genuine answer omissions.
+* Achieved 9/10 pass rate using semantic evaluation.
+
+Design Decisions:
+
+* LLM evaluation operates on the same inputs as deterministic evaluation:
+  - User query
+  - Expected facts
+  - Generated answer
+* Retrieved chunks and reranked context are intentionally excluded from evaluation.
+* Retrieval and reranking quality are evaluated independently in earlier milestones.
+* The judge focuses exclusively on answer correctness and completeness.
+
+Observations:
+
+* Semantic evaluation more closely matches human judgment than deterministic fact matching.
+* Exact string matching can incorrectly fail answers that preserve meaning through paraphrasing.
+* LLM-based evaluation successfully distinguishes between wording differences and genuine answer omissions.
+* Evaluation quality improves when semantic understanding is incorporated into the assessment process.
+
+### Evaluation Findings
+
+#### Finding 1: Semantic Equivalence
+
+Query:
+
+How much paid jury duty leave is provided?
+
+Expected Fact:
+
+[10] working days
+
+Generated Answer:
+
+10 working days
+
+Deterministic Evaluation:
+
+FAIL
+
+LLM Judge Evaluation:
+
+PASS
+
+Analysis:
+
+* The generated answer preserved the meaning of the source material.
+* Deterministic evaluation failed because it relied on exact string matching.
+* The LLM judge correctly identified the answer as semantically equivalent.
+* This demonstrates the primary advantage of semantic evaluation over deterministic evaluation.
+
+#### Finding 2: Genuine Information Omission
+
+Query:
+
+How much family care and medical leave is available?
+
+Expected Facts:
+
+12 weeks
+26 weeks
+
+Generated Answer:
+
+Included 12 weeks
+Omitted 26 weeks
+
+Deterministic Evaluation:
+
+FAIL
+
+LLM Judge Evaluation:
+
+FAIL
+
+Analysis:
+
+* The generated answer omitted required information.
+* Both evaluation methods correctly identified the failure.
+* The result confirms that semantic evaluation does not simply increase pass rates.
+* The judge continued to detect genuine answer quality issues despite allowing semantic flexibility.
+
+### Deterministic vs Semantic Evaluation
+
+Evaluation Method	        Result
+Deterministic Evaluation	8/10
+LLM-as-a-Judge Evaluation	9/10
+
+Difference:
+
+* Deterministic evaluation failed both identified test cases.
+* LLM evaluation passed the semantically correct jury duty response.
+* Both evaluation methods failed the family leave response because required information was omitted.
+* The LLM judge produced results that more closely aligned with human evaluation.
+
+### Milestone Takeaway
+
+Deterministic Evaluation
+↓
+Measures exact fact matching
+
+LLM-as-a-Judge Evaluation
+↓
+Measures semantic correctness and answer completeness
+
+* Deterministic evaluation is effective for identifying literal fact coverage.
+* LLM-based evaluation is more effective for assessing whether answers communicate the intended meaning.
+* Semantic evaluation provides a more accurate assessment of answer quality by evaluating meaning rather than exact wording.
+* Semantic evaluation reduces false failures caused by wording differences while continuing to identify genuine answer quality issues.
+
+### Future Work
+
+* Introduce source attribution for generated answers.
+* Evaluate attribution accuracy alongside answer quality.
+* Extend evaluation datasets with additional document types and question categories.
+
 ---
 
 ## Design Decisions
@@ -536,4 +666,3 @@ Additional complexity is introduced only when it produces measurable improvement
 ### Future Exploration
 
 Future iterations of the project will explore agentic workflows, enabling the system to perform iterative retrieval, multi-step reasoning, and dynamic information gathering before generating a final response.
-
