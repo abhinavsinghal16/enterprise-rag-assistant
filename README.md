@@ -57,9 +57,9 @@ The project covers the complete RAG pipeline:
 
 * [x] Retrieval evaluation
 * [x] Reranking evaluation
-* [ ] End-to-end response evaluation
+* [x] Deterministic End-to-end response evaluation
+* [ ] LLM-as-a-Judge End-to-end response evaluation
 * [ ] Source attribution
-
 
 ---
 
@@ -67,7 +67,7 @@ The project covers the complete RAG pipeline:
 
 Evaluating answer quality and attribution:
 
-1. End-to-end response evaluation
+1. LLM-as-a-Judge evaluation
 2. Source attribution
 
 ---
@@ -295,6 +295,170 @@ Observations:
 * The reranker successfully preserved all required information across the evaluation dataset.
 * Context reduction from 10 retrieved chunks to 3 reranked chunks did not result in information loss for tested queries.
 * Fact coverage proved to be an effective proxy for measuring answerability after context reduction.
+
+### Milestone 9: Deterministic End-to-End Response Evaluation
+
+Completed
+
+Implemented:
+
+* ResponseEvaluator
+* Automated end-to-end response evaluation runner
+* Generated answer validation against expected facts
+* End-to-end RAG quality reporting
+
+Validation:
+
+* Evaluated generated answers using the retrieval evaluation dataset.
+* Verified that generated responses were grounded in retrieved and reranked context.
+* Identified cases where deterministic evaluation failed despite semantically correct answers.
+* Identified cases where the language model omitted relevant information that was present in the provided context.
+* Achieved 8/10 pass rate using deterministic fact matching, exposing both semantic matching limitations and generation completeness issues.
+
+Design Decisions:
+
+* End-to-end evaluation is performed independently from retrieval and reranking evaluation.
+* Generated answers are validated against expected facts rather than source locations.
+* Deterministic fact matching is intentionally strict and requires expected facts to appear in the generated answer.
+* Strict evaluation was chosen to establish a baseline before introducing semantic evaluation using an LLM judge.
+
+Observations:
+
+* Strong retrieval and reranking performance does not guarantee complete answers.
+* End-to-end evaluation revealed that answer quality depends on retrieval quality, prompt design, and generation behavior.
+* The language model may omit relevant facts even when those facts are present in the provided context.
+* Deterministic evaluation can incorrectly fail semantically equivalent answers because it relies on exact text matching.
+* Prompt instructions currently emphasize groundedness and non-hallucination, but do not explicitly optimize for completeness.
+* Prompts that emphasize groundedness alone may still produce incomplete answers.
+* Production RAG systems often require explicit instructions to include all relevant facts, exceptions, and qualifying conditions from the retrieved context.
+* Retrieval evaluation and reranking evaluation both achieved perfect scores, yet end-to-end evaluation still identified answer quality issues.
+* Evaluation demonstrated that retrieval quality, reranking quality, and answer quality are distinct dimensions that must be measured independently.
+* End-to-end evaluation exposed failure modes that were not visible through retrieval-only or reranking-only metrics.
+* Evaluation serves not only as a measurement tool but also as a feedback mechanism for identifying opportunities to improve prompts, answer quality, and overall system behavior.
+
+### Evaluation Findings
+
+#### Finding 1: Deterministic Evaluation Limitation
+
+Query:
+
+How much paid jury duty leave is provided?
+
+Expected Fact:
+
+[10] working days
+
+Generated Answer:
+
+10 working days
+
+Result:
+
+FAIL
+
+Analysis:
+
+* The generated answer was semantically correct but failed deterministic evaluation because the expected fact included document-specific bracket formatting.
+* The model preserved the meaning of the source material while using slightly different wording.
+* This demonstrates a limitation of exact fact matching and motivates the introduction of semantic evaluation using an LLM judge.
+
+Expected LLM Judge Outcome:
+
+PASS
+
+Reason:
+The answer preserves the meaning of the source material even though the wording differs.
+
+
+#### Finding 2: Generation Completeness Limitation
+
+Query:
+
+How much family care and medical leave is available?
+
+Expected Facts:
+
+12 weeks
+26 weeks
+
+Generated Answer:
+
+Included 12 weeks
+Omitted 26 weeks
+
+Result:
+
+FAIL
+
+Analysis:
+
+* The reranked context contained multiple references to 26 weeks of leave, including military caregiver leave.
+* Retrieval evaluation and reranking evaluation both confirmed that the information was available to the model.
+* The generated answer included the 12-week leave entitlement but omitted the 26-week leave entitlement.
+* Inspection of the generated prompt confirmed that the 26-week leave entitlement was present in the context supplied to the language model.
+* This demonstrates a true generation failure rather than a retrieval or reranking failure.
+* The finding highlights the importance of evaluating generation independently from retrieval and reranking. Retrieval evaluation and reranking evaluation both achieved perfect scores, yet end-to-end evaluation still exposed answer quality issues.
+* The result demonstrates that retrieval quality, reranking quality, and answer quality are distinct dimensions of a RAG system and must be evaluated separately.
+* The omission also highlights the importance of prompt design. The system prompt instructed the model to answer using only the provided context and avoid hallucinations, but did not explicitly instruct the model to provide a complete or exhaustive answer.
+
+Current System Prompt:
+
+```text
+You are a helpful assistant.
+Answer questions using only the provided context.
+If the answer cannot be found in the context, say that the information is not available in the provided documents.
+Do not make up information.
+```
+
+Prompt Limitation:
+
+The prompt emphasizes groundedness and non-hallucination but does not explicitly require the model to include all relevant facts, exceptions, limits, or qualifying conditions found in the supplied context.
+
+* As a result, the model appears to have optimized for brevity and selected what it considered the primary leave entitlement while omitting an additional qualifying leave category.
+* This finding demonstrates that prompt design influences not only factual grounding but also answer completeness.
+
+Expected LLM Judge Outcome:
+
+FAIL
+
+Reason:
+A required fact was omitted from the generated answer even though it was present in the supplied context.
+
+### Prompt Engineering Learnings
+
+* Prompt design influences answer completeness in addition to factual grounding.
+* Instructions that focus on preventing hallucinations do not necessarily encourage comprehensive answers.
+* The current prompt successfully constrained the model to use only retrieved context but did not explicitly require the inclusion of all relevant information.
+* Language models may optimize for concise responses unless instructed otherwise.
+* Production RAG systems often require prompts that explicitly emphasize completeness, exceptions, qualifying conditions, and multiple applicable categories.
+* Retrieval and reranking determine what information is available to the model, while prompt design influences how much of that information appears in the final answer.
+* Evaluation demonstrated that answer omissions can occur even when the necessary information is successfully retrieved and provided to the model.
+
+### Milestone Takeaway
+
+```text
+Retrieval Quality
++
+Reranking Quality
++
+Prompt Quality
++
+Generation Quality
+=
+Answer Quality
+```
+
+* Milestone 9 demonstrated that successful retrieval and reranking do not guarantee complete answers.
+* The generated response is influenced not only by the quality of retrieved context but also by the instructions provided to the language model.
+* Evaluation revealed that answer quality depends on retrieval quality, reranking quality, prompt design, and generation behavior, each of which must be validated independently.
+
+### Future Work
+
+* The next evaluation phase will introduce an LLM-as-a-Judge evaluator.
+* Unlike deterministic fact matching, the LLM judge will evaluate semantic correctness rather than exact text matches.
+* The LLM judge will distinguish between semantically correct paraphrases and genuine omissions of required information.
+* Answers that preserve meaning through paraphrasing are expected to pass LLM evaluation even when deterministic evaluation fails.
+* Answers that omit required facts are expected to fail both deterministic evaluation and LLM-based evaluation.
 
 ---
 
