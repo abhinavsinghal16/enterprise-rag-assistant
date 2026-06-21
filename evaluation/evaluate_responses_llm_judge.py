@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from generation.source_extractor import SourceExtractor
 
 from evaluation.retrieval_test_cases import (
     RETRIEVAL_TEST_CASES
@@ -69,9 +70,12 @@ def main():
 
     llm_client = OpenAILLMClient()
 
+    source_extractor = SourceExtractor()
+
     answer_generator = AnswerGenerator(
         prompt_builder,
-        llm_client
+        llm_client,
+        source_extractor
     )
 
     llm_judge = LLMJudge(
@@ -112,7 +116,7 @@ def main():
             )
         )
 
-        answer = (
+        generated_answer = (
             answer_generator.generate_answer(
                 query=query,
                 retrieval_result=
@@ -128,7 +132,7 @@ def main():
                         "expected_facts"
                     ],
                 generated_answer=
-                    answer
+                    generated_answer.answer
             )
         )
 

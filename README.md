@@ -59,13 +59,15 @@ The project covers the complete RAG pipeline:
 * [x] Reranking evaluation
 * [x] Deterministic End-to-end response evaluation
 * [x] LLM-as-a-Judge End-to-end response evaluation
-* [ ] Source attribution
+* [x] Source attribution
 
 ---
 
 ## Current Focus
 
-1. Source attribution
+1. Agentic workflows
+2. Tool calling
+3. Multi-step reasoning
 
 ---
 
@@ -584,11 +586,137 @@ Measures semantic correctness and answer completeness
 * Semantic evaluation provides a more accurate assessment of answer quality by evaluating meaning rather than exact wording.
 * Semantic evaluation reduces false failures caused by wording differences while continuing to identify genuine answer quality issues.
 
+### Evaluation Stability
+
+* Initial evaluation runs produced inconsistent results across executions despite identical retrieval and reranking outputs.
+* Investigation revealed that generation variability was affecting evaluation scores.
+* Configuring the OpenAI client with temperature=0 produced stable and reproducible evaluation results, ensuring that evaluation metrics reflected actual system behavior rather than randomness in token sampling.
+
 ### Future Work
 
 * Introduce source attribution for generated answers.
 * Evaluate attribution accuracy alongside answer quality.
 * Extend evaluation datasets with additional document types and question categories.
+
+### Milestone 11: Source Attribution
+
+Completed
+
+Implemented:
+
+* SourceAttribution model
+* SourceExtractor component
+* Source deduplication logic
+* GeneratedAnswer model containing answer and source metadata
+* End-to-end source attribution workflow
+* Source display and provenance reporting
+
+Validation:
+
+* Verified source metadata is preserved through retrieval and reranking.
+* Verified document name, section name, and page number are correctly extracted from reranked chunks.
+* Implemented source deduplication to prevent duplicate references from being displayed when multiple reranked chunks originate from the same document section.
+* Verified source attribution remains independent of answer generation.
+* Verified generated answers and source references are returned together through a unified response model.
+
+Design Decisions:
+
+* Source attribution is derived from reranked retrieval results rather than generated responses.
+* Retrieved context is treated as the authoritative source of provenance information.
+* Answer generation remains unchanged and is not responsible for producing citations.
+* Source extraction occurs after answer generation to preserve separation between retrieval, generation, and attribution responsibilities.
+* Attribution metadata consists of:
+  - Document Name
+  - Section Name
+  - Page Number
+
+Observations:
+
+* Source attribution can be added without modifying retrieval or generation workflows.
+* Attribution quality depends directly on metadata quality generated during document processing.
+* PDF-derived metadata may contain formatting artifacts that propagate into user-facing citations.
+* Separating attribution from generation produces deterministic and auditable source references.
+* Source attribution improves answer transparency by allowing users to trace generated responses back to original document locations.
+
+### Source Attribution Example
+
+Generated Answer:
+
+Employees receive vacation days based on their years of continuous service according to the following schedule...
+
+Sources:
+
+[1] Employee-Handbook-for-Nonprofits-and-Small-Businesses.pdf
+    2. Accrual (Page 13)
+
+[2] Employee-Handbook-for-Nonprofits-and-Small-Businesses.pdf
+    C. Holidaysxiv (Page 14)
+
+[3] Employee-Handbook-for-Nonprofits-and-Small-Businesses.pdf
+    14 3. Administration (Page 14)
+
+### Milestone Takeaway
+
+Semantic Retrieval
+↓
+Identifies relevant document content
+
+Cross-Encoder Reranking
+↓
+Selects highest quality context
+
+GPT Answer Generation
+↓
+Produces answer
+
+Source Attribution
+↓
+Provides answer provenance
+
+* Generated answers should be accompanied by source information whenever possible.
+* Attribution should be derived from retrieved context rather than generated text.
+* Metadata quality is critical for producing useful source references.
+* Separating attribution from generation improves transparency while preserving system modularity.
+
+### Source Attribution Learnings
+
+* Source attribution should be based on retrieved context rather than generated responses.
+* Because LLMs may omit, rephrase, or hallucinate information, deriving citations from generated text can produce inaccurate references.
+* Using reranked retrieval results provides deterministic and auditable attribution while preserving separation between retrieval and generation responsibilities.
+* Testing also revealed that metadata quality directly impacts attribution quality. Formatting artifacts introduced during PDF processing may propagate into user-facing source references, highlighting the importance of metadata extraction for downstream features.
+
+### Overall Architecture
+
+User Query
+    |
+    v
+Semantic Retrieval
+    |
+    v
+Cross-Encoder Reranking
+    |
+    v
+Prompt Construction
+    |
+    v
+GPT Answer Generation
+    |
+    +-------------------+
+    |                   |
+    v                   v
+Generated Answer   Source Extraction
+    |                   |
+    +---------+---------+
+              |
+              v
+       GeneratedAnswer
+    (Answer + Sources)
+
+### Future Work
+
+* Improve section metadata extraction during document processing.
+* Introduce answer-level attribution linking specific answer segments to source references.
+* Extend source attribution support to future agentic workflows.
 
 ---
 
@@ -663,6 +791,25 @@ Examples include:
 
 Additional complexity is introduced only when it produces measurable improvements in retrieval quality.
 
-### Future Exploration
+## V1 Completion Status
 
-Future iterations of the project will explore agentic workflows, enabling the system to perform iterative retrieval, multi-step reasoning, and dynamic information gathering before generating a final response.
+The Enterprise RAG Assistant now supports:
+
+* End-to-end document ingestion
+* Semantic retrieval
+* Cross-encoder reranking
+* GPT-based answer generation
+* Deterministic evaluation
+* LLM-based semantic evaluation
+* Source attribution
+
+V1 demonstrates a complete Retrieval-Augmented Generation pipeline with independent evaluation of retrieval quality, reranking quality, answer quality, and source attribution.
+
+## Next Phase
+
+Future development will focus on:
+
+* Agentic workflows
+* Tool calling
+* Multi-step reasoning
+* Agent evaluation

@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from generation.openai_llm_client import OpenAILLMClient
 from generation.prompt_builder import PromptBuilder
 from generation.answer_generator import AnswerGenerator
+from generation.source_extractor import SourceExtractor
 
 def main():
 
@@ -134,14 +135,31 @@ def main():
 
     llm_client = OpenAILLMClient()
 
+    source_extractor = SourceExtractor()
+
     answer_generator = AnswerGenerator(
         prompt_builder,
-        llm_client)
+        llm_client,
+        source_extractor)
 
-    answer = answer_generator.generate_answer(
+    generated_answer = answer_generator.generate_answer(
         query=query,
         retrieval_result=reranked_result)
     
+    print("\nANSWER")
+    print("=" * 80)
+    print(generated_answer.answer)
+
+    print("\nSOURCES")
+    print("=" * 80)
+
+    for source_index, source in enumerate(generated_answer.sources, start=1):
+        print(f"\n[{source_index}] {source.document_name}")
+
+        print(
+            f"    {source.section} "
+            f"(Page {source.page_number})"
+        )
 
     print(f"Pages extracted: {len(pages)}")
     print(f"Chunks created: {len(chunks)}")
@@ -153,10 +171,6 @@ def main():
         f"Retrieval time: "
         f"{retrieval_result.retrieval_time_ms:.2f} ms"
     )
-
-    print("\nANSWER")
-    print("=" * 80)
-    print(answer)
 
 if __name__ == "__main__":
     main()
