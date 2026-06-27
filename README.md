@@ -1,22 +1,63 @@
-# Enterprise RAG Assistant
+# Enterprise RAG & Agentic AI Assistant
 
-An end-to-end Retrieval-Augmented Generation (RAG) system built from scratch to explore the architectural decisions, tradeoffs, and implementation details behind production AI assistants and enterprise knowledge systems.
+An end-to-end Retrieval-Augmented Generation (RAG) system built from scratch to understand the architectural decisions, design tradeoffs, and implementation details behind production AI assistants and enterprise knowledge systems.
+
+The project progressively evolves from a traditional RAG pipeline into a production-style agentic AI system capable of reasoning, tool use, planning, memory, and multi-agent collaboration.
 
 The objective is not simply to use existing frameworks, but to gain a deep understanding of how enterprise-grade AI applications are built, from document ingestion and retrieval to orchestration and answer generation.
 
-## Planned Architecture
+## Learning Goals
 
-The project covers the complete RAG pipeline:
+This project is intentionally built from scratch to understand the architectural building blocks behind modern AI systems rather than relying on high-level orchestration frameworks.
 
-* Document ingestion
-* PDF processing
-* Chunking and metadata extraction
-* Embedding generation
-* Vector search with FAISS
-* Reranking
-* Prompt construction
-* LLM integration
-* Answer generation
+Topics explored include:
+
+Retrieval-Augmented Generation (RAG)
+
+Retrieval Systems
+- Document ingestion
+- Chunking
+- Embeddings
+- Semantic search
+- Vector databases
+- Cross-encoder reranking
+
+Generation
+- Prompt engineering
+- LLM integration
+
+Evaluation
+- Evaluation methodologies
+
+Agentic AI
+- Tool calling
+- Planning
+- Memory
+- Multi-agent systems
+
+## Architecture
+
+### V1
+
+PDF
+ ↓
+Document Processing
+ ↓
+Chunking
+ ↓
+Embedding Generation
+ ↓
+FAISS Retrieval
+ ↓
+Cross-Encoder Reranking
+ ↓
+Prompt Construction
+ ↓
+LLM
+ ↓
+Source Attribution
+ ↓
+Evaluation
 
 ---
 
@@ -60,14 +101,6 @@ The project covers the complete RAG pipeline:
 * [x] Deterministic End-to-end response evaluation
 * [x] LLM-as-a-Judge End-to-end response evaluation
 * [x] Source attribution
-
----
-
-## Current Focus
-
-1. Agentic workflows
-2. Tool calling
-3. Multi-step reasoning
 
 ---
 
@@ -805,11 +838,73 @@ The Enterprise RAG Assistant now supports:
 
 V1 demonstrates a complete Retrieval-Augmented Generation pipeline with independent evaluation of retrieval quality, reranking quality, answer quality, and source attribution.
 
-## Next Phase
+# V2 Roadmap
 
-Future development will focus on:
+V1 focused on building a production-style Retrieval-Augmented Generation (RAG) system from first principles.
 
-* Agentic workflows
-* Tool calling
-* Multi-step reasoning
-* Agent evaluation
+V2 extends the project into an agentic AI system capable of reasoning, tool use, planning, memory, and multi-agent collaboration.
+
+Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent responsible for selecting and orchestrating tools dynamically.
+
+---
+
+## Current Status (V2)
+
+### Tool Framework
+
+* [x] Generic Tool abstraction
+* [x] Tool parameter model
+* [ ] Tool input validation
+* [ ] Common tool execution lifecycle
+
+### Tool Registry
+
+* [ ] Tool registration
+* [ ] Tool discovery
+* [ ] Tool metadata generation
+
+### Tools
+
+* [ ] Calculator tool
+* [ ] Time tool
+* [ ] Enterprise retrieval tool
+
+### Agent
+
+* [ ] LLM-driven tool selection
+* [ ] Tool execution
+* [ ] Agent orchestration
+
+### OpenAI Integration
+
+* [ ] Native OpenAI tool calling
+* [ ] End-to-end agent integration
+
+### Reasoning
+
+* [ ] ReAct agent loop
+* [ ] Multi-step reasoning
+* [ ] Planning
+* [ ] Reflection
+
+### Memory
+
+* [ ] Conversation memory
+* [ ] Short-term memory
+* [ ] Long-term memory
+* [ ] Context retrieval
+
+### Evaluation
+
+* [ ] Tool selection evaluation
+* [ ] Tool argument evaluation
+* [ ] Agent trajectory evaluation
+* [ ] Task completion evaluation
+* [ ] Failure analysis
+
+### Multi-Agent Systems
+
+* [ ] Planner agent
+* [ ] Research agent
+* [ ] Writer agent
+* [ ] Agent coordination
