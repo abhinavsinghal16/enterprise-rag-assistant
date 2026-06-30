@@ -2,7 +2,7 @@
 
 An end-to-end Retrieval-Augmented Generation (RAG) system built from scratch to understand the architectural decisions, design tradeoffs, and implementation details behind production AI assistants and enterprise knowledge systems.
 
-The project progressively evolves from a traditional RAG pipeline into a production-style agentic AI system capable of reasoning, tool use, planning, memory, and multi-agent collaboration.
+The project evolves from a traditional RAG pipeline into a production-style agentic AI system capable of reasoning, tool use, planning, memory, and multi-agent collaboration.
 
 The objective is not simply to use existing frameworks, but to gain a deep understanding of how enterprise-grade AI applications are built, from document ingestion and retrieval to orchestration and answer generation.
 
@@ -838,6 +838,8 @@ The Enterprise RAG Assistant now supports:
 
 V1 demonstrates a complete Retrieval-Augmented Generation pipeline with independent evaluation of retrieval quality, reranking quality, answer quality, and source attribution.
 
+V2 builds incrementally on the V1 architecture. Existing retrieval, reranking, generation, attribution, and evaluation components are preserved and exposed as tools rather than being redesigned.
+
 # V2 Roadmap
 
 V1 focused on building a production-style Retrieval-Augmented Generation (RAG) system from first principles.
@@ -854,14 +856,14 @@ Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent res
 
 * [x] Generic Tool abstraction
 * [x] Tool parameter model
-* [ ] Tool input validation
-* [ ] Common tool execution lifecycle
+* [x] Tool input validation
+* [x] Common tool execution lifecycle
 
 ### Tool Registry
 
 * [ ] Tool registration
-* [ ] Tool discovery
-* [ ] Tool metadata generation
+* [ ] Tool lookup
+* [ ] Tool enumeration
 
 ### Tools
 
@@ -908,3 +910,41 @@ Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent res
 * [ ] Research agent
 * [ ] Writer agent
 * [ ] Agent coordination
+
+---
+
+## Milestones
+
+### Milestone 1: Core Tool Framework
+
+Completed
+
+Implemented:
+
+* ToolParameter model
+* Abstract Tool class
+* Generic input validation
+* Common tool execution lifecycle
+* CalculatorTool
+
+Design Decisions:
+
+* Tool metadata is represented using Python classes rather than JSON.
+* Validation is implemented once in the base Tool class and inherited by all concrete tools.
+* Business logic is isolated within execute(), allowing tools to remain focused on their specific capability.
+
+Validation:
+
+* Verified successful execution of CalculatorTool.
+* Verified generic input validation for required parameters and type checking.
+* Confirmed concrete tools inherit framework behavior without duplicating validation logic.
+
+Milestone Takeaway
+
+Metadata
+↓
+Validation
+↓
+Execution
+↓
+Reusable Tool
