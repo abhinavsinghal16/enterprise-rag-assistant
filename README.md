@@ -869,7 +869,7 @@ Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent res
 
 * [x] Calculator tool
 * [x] Current weather tool
-* [ ] Enterprise retrieval tool
+* [x] Enterprise retrieval tool
 
 ### Agent
 
@@ -913,7 +913,7 @@ Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent res
 
 ---
 
-## Milestones
+## V2 Milestones
 
 ### Milestone 1: Core Tool Framework
 
@@ -1034,4 +1034,56 @@ ToolRegistry
           ├─────────┴─────────┐
           ▼                   ▼
    Geocoding API        Weather API
+```
+
+### Milestone 3: Capability Tools
+
+Completed
+
+Implemented:
+
+* CalculatorTool
+* CurrentWeatherTool
+* RetrieverTool
+* WeatherClient abstraction
+* OpenMeteoWeatherClient
+* Weather and Coordinates domain models
+* Enterprise retrieval integration
+* External REST API integration
+
+Validation:
+
+* Verified CalculatorTool execution through the generic Tool framework.
+* Verified CurrentWeatherTool execution against the Open-Meteo Geocoding and Weather APIs.
+* Verified geocoding from location names to geographic coordinates.
+* Verified RetrieverTool execution using the existing enterprise retrieval pipeline.
+* Verified successful registration and lookup of all capability tools through ToolRegistry.
+* Verified tool execution through the common Tool lifecycle.
+
+Design Decisions:
+
+* Existing V1 capabilities were exposed as tools rather than redesigned.
+* Provider-specific logic was isolated behind WeatherClient to keep tools provider-independent.
+* Tools receive their dependencies through constructor injection rather than creating them internally.
+* Tool interfaces expose only business-level inputs while hiding implementation details such as retrieval parameters and external API workflows.
+* Capability tools focus on orchestration while delegating business logic to reusable services.
+
+Observations:
+
+* The generic Tool abstraction successfully supports deterministic computation, external REST APIs, and enterprise retrieval without modification.
+* Dependency injection simplifies testing and keeps tool implementations lightweight.
+* Registering capabilities through ToolRegistry establishes a common execution model that will be reused by the Agent in subsequent milestones.
+
+### Milestone Takeaway
+
+```text
+                 ToolRegistry
+                      │
+      ┌───────────────┼────────────────┐
+      │               │                │
+      ▼               ▼                ▼
+CalculatorTool  CurrentWeatherTool  RetrieverTool
+                      │                │
+                      ▼                ▼
+             OpenMeteoWeatherClient  SemanticRetriever
 ```
