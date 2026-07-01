@@ -861,13 +861,13 @@ Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent res
 
 ### Tool Registry
 
-* [ ] Tool registration
-* [ ] Tool lookup
-* [ ] Tool enumeration
+* [x] Tool registration
+* [x] Tool lookup
+* [x] Tool enumeration
 
 ### Tools
 
-* [ ] Calculator tool
+* [x] Calculator tool
 * [ ] Time tool
 * [ ] Enterprise retrieval tool
 
@@ -948,3 +948,46 @@ Validation
 Execution
 ↓
 Reusable Tool
+
+### Milestone 2: Tool Registry
+
+Completed
+
+Implemented:
+
+* ToolRegistry
+* Tool registration
+* Tool lookup
+* Tool enumeration
+* Duplicate tool registration validation
+* Unknown tool validation
+
+Design Decisions:
+
+* Tools are instantiated once during application startup and registered with the registry.
+* The registry stores Tool objects rather than tool names, allowing tools to maintain their own metadata and dependencies.
+* Tool names serve as the canonical lookup keys returned by the LLM during tool selection.
+* The registry is responsible only for managing tools and remains independent of both the agent and the LLM provider.
+
+Validation:
+
+* Verified successful tool registration.
+* Verified tool lookup by name.
+* Verified enumeration of registered tools.
+* Verified duplicate registrations raise an exception.
+* Verified lookup of unknown tools raises an exception.
+
+Milestone Takeaway
+
+```text
+Application Startup
+        ↓
+Create Tools
+        ↓
+Register Tools
+        ↓
+Tool Registry
+        ↓
+LLM selects tool
+        ↓
+Registry returns Tool
