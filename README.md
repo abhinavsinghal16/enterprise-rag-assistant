@@ -865,10 +865,10 @@ Unlike V1, which follows a fixed workflow, V2 introduces an LLM-driven agent res
 * [x] Tool lookup
 * [x] Tool enumeration
 
-### Tools
+### Capability Tools
 
 * [x] Calculator tool
-* [ ] Time tool
+* [x] Current weather tool
 * [ ] Enterprise retrieval tool
 
 ### Agent
@@ -991,3 +991,47 @@ Tool Registry
 LLM selects tool
         ↓
 Registry returns Tool
+
+### Milestone 3: Capability Tools
+
+Completed (Part A)
+
+Implemented:
+
+* CalculatorTool
+* CurrentWeatherTool
+* WeatherClient abstraction
+* OpenMeteoWeatherClient
+* Weather and Coordinates domain models
+* External REST API integration
+
+Validation:
+
+* Verified weather retrieval through Open-Meteo APIs.
+* Verified geocoding from location name to coordinates.
+* Verified CurrentWeatherTool execution through the Tool framework.
+* Verified registration and lookup through ToolRegistry.
+
+Design Decisions:
+
+* Tool interfaces remain provider-agnostic.
+* Provider-specific logic is encapsulated within WeatherClient implementations.
+* Domain models are returned instead of raw dictionaries.
+* Tools orchestrate capabilities while clients communicate with external services.
+
+### Milestone Takeaway
+
+```text
+ToolRegistry
+        │
+        ├── CalculatorTool
+        │
+        └── CurrentWeatherTool
+                    │
+                    ▼
+           OpenMeteoWeatherClient
+                    │
+          ├─────────┴─────────┐
+          ▼                   ▼
+   Geocoding API        Weather API
+```
